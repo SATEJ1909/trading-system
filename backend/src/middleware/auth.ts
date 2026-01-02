@@ -15,7 +15,7 @@ export const authService = async (req: Request, res: Response, next: NextFunctio
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
+        const decoded = jwt.verify(token, JWT_SECRET as string) as { id: string };
 
         req.userId = decoded.id;
 

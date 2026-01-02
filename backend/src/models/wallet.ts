@@ -27,6 +27,7 @@ const walletSchema = new Schema<IWallet>(
     currency: {
       type: String,
       enum: ["VIRTUAL_INR", "USD"],
+      default: "VIRTUAL_INR",
       required: true,
     },
   },
