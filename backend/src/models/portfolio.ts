@@ -3,7 +3,8 @@ import mongoose, { Types , Schema  , model } from "mongoose";
 export interface IPortfolio {
   userId: Types.ObjectId;    // Owner of the asset
   assetId: Types.ObjectId;   // Which asset
-  quantity: number;          // Total holding
+  availableQuantity: number; 
+  lockedQuantity: number;        // Total holding
   avgBuyPrice: number;       // Weighted average buy price
   updatedAt: Date;
 }
@@ -21,7 +22,12 @@ const portfolioSchema = new Schema<IPortfolio>(
       required: true,
       index: true,
     },
-    quantity: {
+    availableQuantity: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    lockedQuantity: {
       type: Number,
       required: true,
       min: 0,
