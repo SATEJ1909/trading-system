@@ -128,7 +128,7 @@ interface orderEngine  extends IOrder{
 }
 
 const orderBook: Record<string, { bids: orderEngine[], asks: orderEngine[] }> = {};
-export async function executeTradeMatching(order : orderEngine){
+/* export async function executeTradeMatching(order : orderEngine){
   const { assetId , side , price : targetPrice} = order ;
 
   if(!order){
@@ -175,4 +175,131 @@ export async function executeTradeMatching(order : orderEngine){
      sideToAdd.push(order);
      sideToAdd.sort((a, b) => (side === "BUY") ? b.price! - a.price! : a.price! - b.price!);
   }
+} */
+type OrderEngineWithId = orderEngine & {
+  id: string;
+};
+
+  export async function executeTradeMatching(order: OrderEngineWithId, io: any) {
+  const { assetId, side, price: targetPrice } = order;
+
+  if (!order) throw new Error("Decrepit order");
+
+  const assetKey = String(assetId);
+  if (!orderBook[assetKey]) {
+    orderBook[assetKey] = { bids: [], asks: [] };
+  }
+
+  const assetBook = orderBook[assetKey];
+  const potentialMatch = (side === "BUY") ? assetBook.asks : assetBook.bids;
+
+  for (let i = 0; i < potentialMatch.length && order.filledQuantity < order.quantity; i++) {
+    const restingOrder = potentialMatch[i];
+
+    
+    if(restingOrder){
+    const isPriceMatch = (side === "BUY") 
+      ? (targetPrice === null || targetPrice >= (restingOrder.price ?? 0)) 
+      : (restingOrder.price === null || (targetPrice ?? 0) <= (restingOrder.price ?? 0));
+
+    if (isPriceMatch && restingOrder) {
+      const tradeAmount = Math.min(
+        order.quantity - order.filledQuantity,
+        restingOrder.quantity - restingOrder.filledQuantity
+      );
+
+      // 1. Update Database
+      await updateOrderStatus(order.id, "PARTIAL", tradeAmount);
+      await updateOrderStatus(restingOrder.id, "PARTIAL", tradeAmount);
+
+      // 2. Update Memory State
+      order.filledQuantity += tradeAmount;
+      restingOrder.filledQuantity += tradeAmount;
+
+      // 3. --- NEW: NOTIFY THE RESTING ORDER OWNER ---
+      // This tells the person who was already in the book that they just got matched
+      io.to(restingOrder.userId.toString()).emit("ORDER_UPDATE", {
+        id: restingOrder.id,
+        status: restingOrder.filledQuantity === restingOrder.quantity ? "FILLED" : "PARTIAL",
+        filledQuantity: restingOrder.filledQuantity
+      });
+
+      if (restingOrder.filledQuantity === restingOrder.quantity) {
+        await updateOrderStatus(restingOrder.id, "FILLED", 0);
+        potentialMatch.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
+  // 4. --- NEW: BROADCAST PUBLIC MARKET UPDATE ---
+  // Tells everyone watching this asset that the Order Book has changed
+  io.to(`MARKET_${assetKey}`).emit("MARKET_UPDATE", {
+    bids: assetBook.bids.slice(0, 10),
+    asks: assetBook.asks.slice(0, 10)
+  });
+
+  if (order.filledQuantity === order.quantity) {
+    await updateOrderStatus(order.id, "FILLED", 0);
+  } else {
+    const sideToAdd = (side === "BUY") ? assetBook.bids : assetBook.asks;
+    sideToAdd.push(order);
+    sideToAdd.sort((a, b) => (side === "BUY") ? (b.price ?? 0) - (a.price ?? 0) : (a.price ?? 0) - (b.price ?? 0));
+  }
 }
+}
+
+export async function cancelOrder(order : orderEngine){
+    await updateOrderStatus(order.id , "CANCELLED" , 0);
+}
+
+const orderBooks: Record<string, { bids: orderEngine[] , asks :orderEngine[] }> = {} ;
+
+export async function initializeMatchingEngine() {
+  try {
+    const activeOrders = await OrderModel.find({
+      status: { $in: ["OPEN", "PARTIAL"] }
+    });
+
+    for (const order of activeOrders) {
+      const assetId = order.assetId.toString();
+
+      if (!orderBooks[assetId]) {
+        orderBooks[assetId] = { bids: [], asks: [] };
+      }
+
+      const engineOrder: orderEngine = {
+        ...order.toObject(),
+        id: order._id.toString()
+      };
+
+      if (engineOrder.side === "BUY") {
+        orderBooks[assetId].bids.push(engineOrder);
+      } else {
+        orderBooks[assetId].asks.push(engineOrder);
+      }
+    }
+
+    Object.keys(orderBooks).forEach((assetId) => {
+      const book = orderBooks[assetId];
+      if (book) {
+        book.bids.sort((a, b) => (b.price || 0) - (a.price || 0));
+        book.asks.sort((a, b) => (a.price || 0) - (b.price || 0));
+      }
+    });
+
+    console.log("Engine Hydrated Successfully");
+  } catch (error) {
+    console.error("Engine Initialization Failed:", error);
+  }
+}
+
+
+
+export const getInMemBook = (assetId: string) => {
+    const book = orderBooks[assetId] || { bids: [], asks: [] };
+    return {
+        bids: book.bids.slice(0, 10),
+        asks: book.asks.slice(0, 10)
+    };
+};

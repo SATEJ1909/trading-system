@@ -1,6 +1,7 @@
 import  mongoose , { Types  , Schema , model} from "mongoose";
 
 export interface IOrder {
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   assetId: Types.ObjectId;
   side: "BUY" | "SELL";
