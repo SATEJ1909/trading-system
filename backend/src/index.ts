@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import UserRouter from './routes/user.js';
 import WalletRouter from './routes/wallet.js';
+import assetRouter from './routes/asset.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setupSocketService } from './socketserver/socket.js';
@@ -21,6 +22,7 @@ app.use(cors());
 
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/wallet", WalletRouter);
+app.use("/api/v1/assets" , assetRouter)
 
 const PORT = process.env.PORT || 3000;
 

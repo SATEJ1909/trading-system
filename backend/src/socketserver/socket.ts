@@ -30,6 +30,7 @@ export const setupSocketService = (io: Server) => {
 
   io.on("connection", (socket: CustomSocket) => {
     const userId = socket.userId!;
+    console.log(`User ${userId} connected`);
     socket.join(userId);
 
     socket.on("SUBSCRIBE_MARKET", (assetId: string) => {

@@ -11,7 +11,7 @@ export const socketAuth = (
   next: (err?: Error) => void
 ) => {
   try {
-    const token = socket.handshake.auth?.token;
+    const token = socket.handshake.auth?.token ||  socket.handshake.query?.token; 
 
     if (!token) {
       return next(new Error("AUTH_ERROR: Token missing"));

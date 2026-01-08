@@ -34,3 +34,6 @@ const assetSchema = new Schema<IAsset>(
 
 
 const AssetModel = mongoose.model<IAsset>("Assets" , assetSchema)
+
+
+export default AssetModel ;
