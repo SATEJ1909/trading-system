@@ -11,24 +11,26 @@ const requiredSchema = z.object({
     password: z.string().min(5).max(20)
 })
 
-export const signup = async (req: Request, res: Response): Promise<Response> => {
+export const signup = async (req: Request, res: Response): Promise<void> => {
     try {
         const validation = requiredSchema.safeParse(req.body);
         if (!validation.success) {
-            return res.status(400).json({
+            res.status(400).json({
                 success: false,
                 message: "Invalid inputs",
             });
+            return;
         }
 
         const { name, email, password } = req.body;
 
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
-            return res.status(409).json({
+            res.status(409).json({
                 success: false,
                 message: "Email already exists",
             });
+            return;
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,7 +47,7 @@ export const signup = async (req: Request, res: Response): Promise<Response> => 
             { expiresIn: "7d" }
         );
 
-        return res.status(201).json({
+        res.status(201).json({
             success: true,
             message: "User created successfully",
             data: {
@@ -55,44 +57,49 @@ export const signup = async (req: Request, res: Response): Promise<Response> => 
             },
             token,
         });
+        return;
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Internal server error",
         });
+        return;
     }
 };
 
 
 
 
-export const login = async (req: Request, res: Response): Promise<Response> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({
+            res.status(400).json({
                 success: false,
                 message: "Email and password are required",
             });
+            return;
         }
 
         const user = await UserModel.findOne({ email });
         if (!user) {
-            return res.status(401).json({
+            res.status(401).json({
                 success: false,
                 message: "Invalid credentials",
             });
+            return;
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({
+            res.status(401).json({
                 success: false,
                 message: "Invalid credentials",
             });
+            return;
         }
 
         const token = jwt.sign(
@@ -101,7 +108,7 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
             { expiresIn: "7d" }
         );
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             message: "Login successful",
             token,
@@ -111,37 +118,42 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
                 email: user.email,
             },
         });
+        return;
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Internal server error",
         });
+        return;
     }
 };
 
 
-export const getProfile = async (req: Request, res: Response) => {
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
     try {
         const userId = req.userId;
         const user = await UserModel.findById(userId).select("-password");
         if (!user) {
-            return res.status(404).json({
+            res.status(404).json({
                 success: false,
                 message: "User not found"
             });
+            return;
         }
-        return res.status(200).json({
+        res.status(200).json({
             success: true,
             data: user
         });
+        return;
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Internal server error",
         });
+        return;
     }
 }
