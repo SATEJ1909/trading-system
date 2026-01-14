@@ -17,6 +17,16 @@ const io = new Server(httpServer, {
     cors: { origin: "*" }
 });
 
+// CORS - must come before rate limiter
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Parse JSON bodies
+app.use(express.json());
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -26,9 +36,6 @@ const limiter = rateLimit({
     legacyHeaders: false,
 });
 app.use(limiter);
-
-app.use(express.json());
-app.use(cors());
 
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/wallet", WalletRouter);
