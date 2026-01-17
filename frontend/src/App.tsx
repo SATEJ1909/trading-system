@@ -3,6 +3,7 @@ import LandingPage from './pages/landing';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
+import WalletPage from './pages/WalletPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       {/* protected routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/wallet" element={<WalletPage />} />
       </Route>
     </Routes>
   );

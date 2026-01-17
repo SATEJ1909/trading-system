@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useWalletStore } from '../store/walletStore';
 import { Button } from '@/components/ui/button';
 import {
     TrendingUp,
@@ -15,6 +17,11 @@ import {
 export default function DashboardPage() {
     const navigate = useNavigate();
     const { user, logout } = useAuthStore();
+    const { wallet, fetchWallet } = useWalletStore();
+
+    useEffect(() => {
+        fetchWallet();
+    }, [fetchWallet]);
 
     const handleLogout = () => {
         logout();
@@ -23,7 +30,7 @@ export default function DashboardPage() {
 
     const quickActions = [
         { icon: LineChart, label: 'Start Trading', description: 'Practice with live market data', href: '#' },
-        { icon: Wallet, label: 'Virtual Wallet', description: 'Manage your virtual funds', href: '#' },
+        { icon: Wallet, label: 'Virtual Wallet', description: 'Manage your virtual funds', href: '/wallet' },
         { icon: Bell, label: 'Price Alerts', description: 'Set custom notifications', href: '#' },
         { icon: Settings, label: 'Settings', description: 'Customize your experience', href: '#' },
     ];
@@ -80,7 +87,7 @@ export default function DashboardPage() {
                 {/* Stats cards */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     {[
-                        { label: 'Virtual Balance', value: '₹0.00', change: '', positive: null },
+                        { label: 'Virtual Balance', value: `₹${wallet?.availableBalance?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'}`, change: '', positive: null },
                         { label: 'Total Profit/Loss', value: '₹0.00', change: '', positive: null },
                         { label: 'Open Positions', value: '0', change: '', positive: null },
                         { label: 'Completed Trades', value: '0', change: '', positive: null },

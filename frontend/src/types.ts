@@ -43,3 +43,29 @@ export interface SignupCredentials {
     email: string;
     password: string;
 }
+
+// Wallet types
+export interface Wallet {
+    userId: string;
+    availableBalance: number;
+    lockedBalance: number;
+    currency: 'VIRTUAL_INR' | 'USD';
+}
+
+export interface WalletResponse {
+    success: boolean;
+    data?: Wallet;
+    message?: string;
+}
+
+export interface AddMoneyResponse {
+    success: boolean;
+    message: string;
+    balance?: number;
+}
+
+export interface WalletState {
+    wallet: Wallet | null;
+    isLoading: boolean;
+    error: string | null;
+}
