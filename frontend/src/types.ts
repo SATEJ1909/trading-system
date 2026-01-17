@@ -69,3 +69,21 @@ export interface WalletState {
     isLoading: boolean;
     error: string | null;
 }
+
+// Asset types
+export interface Asset {
+    _id: string;
+    symbol: string;
+    name: string;
+    source: 'COINGECKO' | 'BINANCE' | 'MANUAL';
+    isActive: boolean;
+    createdAt: string;
+}
+
+export interface AssetsResponse {
+    success: boolean;
+    count?: number;
+    data?: Asset[];
+    message?: string;
+}
+

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useWalletStore } from '../store/walletStore';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ export default function DashboardPage() {
     };
 
     const quickActions = [
-        { icon: LineChart, label: 'Start Trading', description: 'Practice with live market data', href: '#' },
+        { icon: LineChart, label: 'Live Markets', description: 'View & trade live assets', href: '/markets' },
         { icon: Wallet, label: 'Virtual Wallet', description: 'Manage your virtual funds', href: '/wallet' },
         { icon: Bell, label: 'Price Alerts', description: 'Set custom notifications', href: '#' },
         { icon: Settings, label: 'Settings', description: 'Customize your experience', href: '#' },
@@ -41,12 +41,18 @@ export default function DashboardPage() {
             <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-2">
+                        <Link to="/" className="flex items-center gap-2">
                             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                                 <TrendingUp className="w-5 h-5 text-primary-foreground" />
                             </div>
                             <span className="text-xl font-bold text-foreground">TradeX</span>
-                        </div>
+                        </Link>
+
+                        <nav className="hidden md:flex items-center gap-6">
+                            <Link to="/dashboard" className="text-sm text-primary font-medium">Dashboard</Link>
+                            <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Markets</Link>
+                            <Link to="/wallet" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Wallet</Link>
+                        </nav>
 
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-3">
@@ -139,6 +145,6 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
-        </main>
+        </main >
     );
 }

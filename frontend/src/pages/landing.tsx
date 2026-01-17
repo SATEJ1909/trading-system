@@ -63,8 +63,7 @@ export default function LandingPage() {
     const navItems = [
         { label: "Features", href: "#features" },
         { label: "How It Works", href: "#how-it-works" },
-        { label: "Resources", href: "#resources" },
-        { label: "About", href: "#about" },
+        { label: "Markets", href: "/markets" },
     ]
 
     // Stats removed - no fake metrics
