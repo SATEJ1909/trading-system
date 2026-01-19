@@ -1,85 +1,109 @@
-import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useWalletStore } from '../store/walletStore';
-import { Button } from '@/components/ui/button';
+import Navbar from '@/components/Navbar';
+import DemoChart from '@/components/ui/demo-chart';
+import api from '../api/axios';
 import {
-    TrendingUp,
-    LogOut,
-    User,
-    Wallet,
     LineChart,
-    Bell,
-    Settings,
-    ChevronRight
+    ChevronRight,
+    Wallet,
+    Clock,
+    CheckCircle,
+    XCircle,
+    Loader2,
+    ArrowUpRight,
+    ArrowDownRight,
 } from 'lucide-react';
 
+interface OrderAsset {
+    symbol: string;
+    name: string;
+}
+
+interface Order {
+    _id: string;
+    assetId: OrderAsset;
+    side: 'BUY' | 'SELL';
+    orderType: 'MARKET' | 'LIMIT';
+    price: number | null;
+    quantity: number;
+    filledQuantity: number;
+    status: 'OPEN' | 'PARTIAL' | 'FILLED' | 'CANCELLED';
+    createdAt: string;
+}
+
 export default function DashboardPage() {
-    const navigate = useNavigate();
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
     const { wallet, fetchWallet } = useWalletStore();
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [isLoadingOrders, setIsLoadingOrders] = useState(true);
 
     useEffect(() => {
         fetchWallet();
+        fetchOrders();
     }, [fetchWallet]);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/');
+    const fetchOrders = async () => {
+        try {
+            setIsLoadingOrders(true);
+            console.log('[Dashboard] Fetching orders...');
+            const response = await api.get('/wallet/orders');
+            console.log('[Dashboard] Orders response:', response.data);
+            if (response.data.success) {
+                setOrders(response.data.data || []);
+                console.log('[Dashboard] Orders set:', response.data.data?.length || 0, 'orders');
+            } else {
+                console.error('[Dashboard] Orders API returned failure:', response.data);
+            }
+        } catch (error: any) {
+            console.error('[Dashboard] Failed to fetch orders:', error?.response?.data || error.message);
+        } finally {
+            setIsLoadingOrders(false);
+        }
     };
 
     const quickActions = [
         { icon: LineChart, label: 'Live Markets', description: 'View & trade live assets', href: '/markets' },
         { icon: Wallet, label: 'Virtual Wallet', description: 'Manage your virtual funds', href: '/wallet' },
-        { icon: Bell, label: 'Price Alerts', description: 'Set custom notifications', href: '#' },
-        { icon: Settings, label: 'Settings', description: 'Customize your experience', href: '#' },
     ];
+
+    // Calculate stats from orders
+    const pendingOrders = orders.filter(o => o.status === 'OPEN' || o.status === 'PARTIAL');
+    const completedOrders = orders.filter(o => o.status === 'FILLED');
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'OPEN': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+            case 'PARTIAL': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
+            case 'FILLED': return 'bg-primary/10 text-primary border-primary/20';
+            case 'CANCELLED': return 'bg-destructive/10 text-destructive border-destructive/20';
+            default: return 'bg-muted text-muted-foreground';
+        }
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'OPEN':
+            case 'PARTIAL':
+                return <Clock className="w-3 h-3" />;
+            case 'FILLED':
+                return <CheckCircle className="w-3 h-3" />;
+            case 'CANCELLED':
+                return <XCircle className="w-3 h-3" />;
+            default:
+                return null;
+        }
+    };
 
     return (
         <main className="min-h-screen bg-background">
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <Link to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-primary-foreground" />
-                            </div>
-                            <span className="text-xl font-bold text-foreground">TradeX</span>
-                        </Link>
-
-                        <nav className="hidden md:flex items-center gap-6">
-                            <Link to="/dashboard" className="text-sm text-primary font-medium">Dashboard</Link>
-                            <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Markets</Link>
-                            <Link to="/wallet" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Wallet</Link>
-                        </nav>
-
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 bg-card rounded-full flex items-center justify-center border border-border">
-                                    <User className="w-5 h-5 text-muted-foreground" />
-                                </div>
-                                <div className="hidden sm:block">
-                                    <p className="text-sm font-medium text-foreground">{user?.name}</p>
-                                    <p className="text-xs text-muted-foreground">{user?.email}</p>
-                                </div>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleLogout}
-                                className="text-muted-foreground hover:text-foreground hover:bg-card"
-                            >
-                                <LogOut className="w-4 h-4 mr-2" />
-                                <span className="hidden sm:inline">Logout</span>
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Navbar />
 
             {/* Main content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
                 {/* Welcome section */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -91,21 +115,15 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Stats cards */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="grid sm:grid-cols-3 gap-4 mb-8">
                     {[
-                        { label: 'Virtual Balance', value: `₹${wallet?.availableBalance?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'}`, change: '', positive: null },
-                        { label: 'Total Profit/Loss', value: '₹0.00', change: '', positive: null },
-                        { label: 'Open Positions', value: '0', change: '', positive: null },
-                        { label: 'Completed Trades', value: '0', change: '', positive: null },
+                        { label: 'Virtual Balance', value: `₹${wallet?.availableBalance?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'}` },
+                        { label: 'Open Orders', value: pendingOrders.length.toString() },
+                        { label: 'Completed Trades', value: completedOrders.length.toString() },
                     ].map((stat) => (
                         <div key={stat.label} className="bg-card rounded-2xl border border-border p-5">
                             <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
                             <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                            {stat.change && (
-                                <p className={`text-xs mt-1 ${stat.positive ? 'text-primary' : 'text-muted-foreground'}`}>
-                                    {stat.change}
-                                </p>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -115,9 +133,9 @@ export default function DashboardPage() {
                     <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {quickActions.map((action) => (
-                            <a
+                            <Link
                                 key={action.label}
-                                href={action.href}
+                                to={action.href}
                                 className="group bg-card rounded-2xl border border-border p-5 hover:border-primary/50 transition-all duration-300"
                             >
                                 <div className="flex items-start justify-between">
@@ -128,23 +146,79 @@ export default function DashboardPage() {
                                 </div>
                                 <h3 className="font-semibold text-foreground mb-1">{action.label}</h3>
                                 <p className="text-sm text-muted-foreground">{action.description}</p>
-                            </a>
+                            </Link>
                         ))}
                     </div>
                 </div>
 
-                {/* Placeholder for chart */}
-                <div className="bg-card rounded-2xl border border-border p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Market Overview</h2>
-                    <div className="h-64 flex items-center justify-center">
-                        <div className="text-center">
-                            <LineChart className="w-16 h-16 text-primary/20 mx-auto mb-4" />
-                            <p className="text-muted-foreground">Trading charts and market data will appear here</p>
-                            <p className="text-sm text-muted-foreground/70 mt-1">Coming soon...</p>
-                        </div>
+                {/* Recent Orders */}
+                <div className="mb-8">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Recent Orders</h2>
+                    <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                        {isLoadingOrders ? (
+                            <div className="flex items-center justify-center py-12">
+                                <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                            </div>
+                        ) : orders.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Clock className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                                <p className="text-muted-foreground">No orders yet</p>
+                                <p className="text-sm text-muted-foreground/70">
+                                    Place your first order in the{' '}
+                                    <Link to="/markets" className="text-primary hover:underline">Markets</Link>
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-border">
+                                {orders.slice(0, 5).map((order) => (
+                                    <div key={order._id} className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.side === 'BUY' ? 'bg-primary/10' : 'bg-destructive/10'
+                                                }`}>
+                                                {order.side === 'BUY' ? (
+                                                    <ArrowUpRight className={`w-4 h-4 text-primary`} />
+                                                ) : (
+                                                    <ArrowDownRight className={`w-4 h-4 text-destructive`} />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-foreground">
+                                                    {order.side} {order.assetId?.symbol || 'Unknown'}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {order.quantity} units @ {order.price ? `₹${order.price}` : 'Market'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs border ${getStatusColor(order.status)}`}>
+                                                {getStatusIcon(order.status)}
+                                                {order.status}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {new Date(order.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                                {orders.length > 5 && (
+                                    <div className="p-3 text-center">
+                                        <Link to="/markets" className="text-sm text-primary hover:underline">
+                                            View all orders →
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {/* Market Chart */}
+                <div className="mb-8">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Market Overview</h2>
+                    <DemoChart />
+                </div>
             </div>
-        </main >
+        </main>
     );
 }

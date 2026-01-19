@@ -18,8 +18,16 @@ const io = new Server(httpServer, {
 });
 
 // CORS - must come before rate limiter
+// Allow multiple ports since Vite uses fallback ports when default is busy
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'http://127.0.0.1:5173',
+        'http://127.0.0.1:5174',
+        'http://127.0.0.1:5175'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -41,7 +49,7 @@ app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/wallet", WalletRouter);
 app.use("/api/v1/assets", assetRouter)
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 async function main() {
     try {

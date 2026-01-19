@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import Navbar from '@/components/Navbar';
 import {
     TrendingUp,
-    TrendingDown,
     Loader2,
     RefreshCw,
     AlertCircle,
     ArrowUpRight,
     ArrowDownRight,
     Clock,
+    BarChart3,
 } from 'lucide-react';
 
 // Rate limiting and caching constants
@@ -63,7 +63,7 @@ const isCacheValid = (cache: CacheData | null): cache is CacheData => {
 };
 
 export default function MarketsPage() {
-    const { user, logout } = useAuthStore();
+    const navigate = useNavigate();
     const [assets, setAssets] = useState<CryptoAsset[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -179,15 +179,7 @@ export default function MarketsPage() {
         return () => clearInterval(interval);
     }, [fetchMarkets]);
 
-    const handleBuy = (symbol: string) => {
-        console.log(`Buy ${symbol}`);
-        alert(`Buy order for ${symbol.toUpperCase()} - Trading coming soon!`);
-    };
 
-    const handleSell = (symbol: string) => {
-        console.log(`Sell ${symbol}`);
-        alert(`Sell order for ${symbol.toUpperCase()} - Trading coming soon!`);
-    };
 
     // Format price in INR
     const formatPrice = (price: number) => {
@@ -218,43 +210,7 @@ export default function MarketsPage() {
     return (
         <main className="min-h-screen bg-background">
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <Link to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-primary-foreground" />
-                            </div>
-                            <span className="text-xl font-bold text-foreground">TradeX</span>
-                        </Link>
-
-                        <nav className="hidden md:flex items-center gap-6">
-                            <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                                Dashboard
-                            </Link>
-                            <Link to="/markets" className="text-sm text-primary font-medium">
-                                Markets
-                            </Link>
-                            <Link to="/wallet" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                                Wallet
-                            </Link>
-                        </nav>
-
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-muted-foreground hidden sm:block">
-                                {user?.name}
-                            </span>
-                            <Button
-                                variant="ghost"
-                                className="text-muted-foreground hover:text-foreground"
-                                onClick={logout}
-                            >
-                                Logout
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Navbar />
 
             {/* Main Content */}
             <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
@@ -396,20 +352,11 @@ export default function MarketsPage() {
                                             <div className="flex items-center gap-2 justify-end">
                                                 <Button
                                                     size="sm"
-                                                    onClick={() => handleBuy(asset.symbol)}
-                                                    className="bg-primary text-primary-foreground hover:bg-primary/90 px-3"
+                                                    onClick={() => navigate(`/trade/${asset.symbol.toLowerCase()}`)}
+                                                    className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 px-4"
                                                 >
-                                                    <TrendingUp className="w-3 h-3 mr-1" />
-                                                    Buy
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    onClick={() => handleSell(asset.symbol)}
-                                                    className="border-destructive text-destructive hover:bg-destructive/10 px-3"
-                                                >
-                                                    <TrendingDown className="w-3 h-3 mr-1" />
-                                                    Sell
+                                                    <BarChart3 className="w-3 h-3 mr-1" />
+                                                    Trade
                                                 </Button>
                                             </div>
                                         </div>

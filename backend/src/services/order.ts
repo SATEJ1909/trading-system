@@ -181,19 +181,20 @@ export async function executeTradeMatching(order: OrderEngine, io: any) {
     }
   }
 
-  // 4. Broadcast Market Update
+  // Add unfilled portion to the book FIRST
+  if (order.filledQuantity < order.quantity) {
+    const sideToAdd = (side === "BUY") ? assetBook.bids : assetBook.asks;
+    sideToAdd.push(order);
+    sideToAdd.sort((a, b) => (side === "BUY") ? (b.price ?? 0) - (a.price ?? 0) : (a.price ?? 0) - (b.price ?? 0));
+  } else {
+    await updateOrderStatus(order.id, "FILLED", 0);
+  }
+
+  // THEN broadcast Market Update (with the new order included)
   io.to(`MARKET_${assetKey}`).emit("MARKET_UPDATE", {
     bids: assetBook.bids.slice(0, 10),
     asks: assetBook.asks.slice(0, 10)
   });
-
-  if (order.filledQuantity === order.quantity) {
-    await updateOrderStatus(order.id, "FILLED", 0);
-  } else {
-    const sideToAdd = (side === "BUY") ? assetBook.bids : assetBook.asks;
-    sideToAdd.push(order);
-    sideToAdd.sort((a, b) => (side === "BUY") ? (b.price ?? 0) - (a.price ?? 0) : (a.price ?? 0) - (b.price ?? 0));
-  }
 }
 
 

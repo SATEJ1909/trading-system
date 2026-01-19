@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
 import { useWalletStore } from '../store/walletStore';
 import { Button } from '@/components/ui/button';
+import Navbar from '@/components/Navbar';
 import {
-    TrendingUp,
     Wallet,
     Plus,
     ArrowLeft,
@@ -15,7 +14,6 @@ import {
 } from 'lucide-react';
 
 export default function WalletPage() {
-    const { user, logout } = useAuthStore();
     const { wallet, isLoading, error, fetchWallet, addMoney, clearError } = useWalletStore();
     const [amount, setAmount] = useState<string>('');
     const [successMessage, setSuccessMessage] = useState<string>('');
@@ -47,46 +45,7 @@ export default function WalletPage() {
     return (
         <main className="min-h-screen bg-background">
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <Link to="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-primary-foreground" />
-                            </div>
-                            <span className="text-xl font-bold text-foreground">TradeX</span>
-                        </Link>
-
-                        <nav className="hidden md:flex items-center gap-6">
-                            <Link
-                                to="/dashboard"
-                                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                                Dashboard
-                            </Link>
-                            <Link
-                                to="/wallet"
-                                className="text-sm text-primary font-medium"
-                            >
-                                Wallet
-                            </Link>
-                        </nav>
-
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-muted-foreground hidden sm:block">
-                                {user?.name}
-                            </span>
-                            <Button
-                                variant="ghost"
-                                className="text-muted-foreground hover:text-foreground"
-                                onClick={logout}
-                            >
-                                Logout
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Navbar />
 
             {/* Main Content */}
             <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
@@ -206,8 +165,8 @@ export default function WalletPage() {
                                                 type="button"
                                                 onClick={() => setAmount(quickAmt.toString())}
                                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${amount === quickAmt.toString()
-                                                        ? 'bg-primary text-primary-foreground'
-                                                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                                                     }`}
                                             >
                                                 ₹{quickAmt.toLocaleString()}

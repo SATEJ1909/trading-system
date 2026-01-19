@@ -1,9 +1,9 @@
-import mongoose, { Types , Schema  , model } from "mongoose";
+import mongoose, { Types, Schema, model } from "mongoose";
 
 export interface IPortfolio {
   userId: Types.ObjectId;    // Owner of the asset
   assetId: Types.ObjectId;   // Which asset
-  availableQuantity: number; 
+  availableQuantity: number;
   lockedQuantity: number;        // Total holding
   avgBuyPrice: number;       // Weighted average buy price
   updatedAt: Date;
@@ -44,5 +44,8 @@ const portfolioSchema = new Schema<IPortfolio>(
   }
 );
 
-const PortfolioModel = mongoose.model<IPortfolio>("Portfolio" , portfolioSchema);
+// Compound unique index to prevent duplicate portfolio entries for same user+asset
+portfolioSchema.index({ userId: 1, assetId: 1 }, { unique: true });
+
+const PortfolioModel = mongoose.model<IPortfolio>("Portfolio", portfolioSchema);
 export default PortfolioModel

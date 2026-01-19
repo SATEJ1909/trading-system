@@ -71,10 +71,20 @@ export const setupSocketService = (io: Server) => {
         });
 
       } catch (err) {
-        console.error("ORDER ERROR:", err);
-        socket.emit("ORDER_REJECTED", {
-          reason: "ORDER_FAILED",
-        });
+        const error = err as Error;
+        console.error("ORDER ERROR:", error.message);
+
+        // Map specific errors to user-friendly reasons
+        let reason = "ORDER_FAILED";
+        if (error.message === "INSUFFICIENT_FUNDS") {
+          reason = "INSUFFICIENT_FUNDS";
+        } else if (error.message === "INSUFFICIENT_ASSET") {
+          reason = "INSUFFICIENT_ASSET";
+        } else if (error.message === "MISSING_FIELDS") {
+          reason = "INVALID_ORDER";
+        }
+
+        socket.emit("ORDER_REJECTED", { reason });
       }
     });
 

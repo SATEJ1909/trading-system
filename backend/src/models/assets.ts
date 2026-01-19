@@ -1,7 +1,7 @@
-import mongoose , {Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 export interface IAsset {
-  symbol: string;       
-  name: string;          
+  symbol: string;
+  name: string;
   source: "COINGECKO" | "BINANCE" | "MANUAL";
   isActive: boolean;
   createdAt: Date;
@@ -33,7 +33,7 @@ const assetSchema = new Schema<IAsset>(
 );
 
 
-const AssetModel = mongoose.model<IAsset>("Assets" , assetSchema)
+const AssetModel = mongoose.model<IAsset>("Asset", assetSchema)
 
 
-export default AssetModel ;
+export default AssetModel;
