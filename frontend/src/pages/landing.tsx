@@ -168,16 +168,23 @@ export default function LandingPage() {
     ]
 
     return (
-        <main className="min-h-screen bg-background">
+        <main className="min-h-screen bg-background relative overflow-hidden">
+            {/* Animated background gradient orbs */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-0 -left-20 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float" />
+                <div className="absolute top-40 -right-20 w-80 h-80 bg-primary/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+                <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-gradient-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+            </div>
+
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+            <header className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
-                        <a href="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-primary-foreground" />
+                        <a href="/" className="flex items-center gap-2.5 group">
+                            <div className="w-9 h-9 bg-gradient-primary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                                <TrendingUp className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-xl font-bold text-foreground">TradeX</span>
+                            <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">TradeX</span>
                         </a>
 
                         <nav className="hidden md:flex items-center gap-8">
@@ -185,9 +192,10 @@ export default function LandingPage() {
                                 <a
                                     key={item.label}
                                     href={item.href}
-                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 relative group"
                                 >
-                                    {item.label}
+                                    <span className="relative z-10">{item.label}</span>
+                                    <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-primary opacity-0 group-hover:opacity-100 transition-opacity rounded-full" />
                                 </a>
                             ))}
                         </nav>
@@ -195,17 +203,17 @@ export default function LandingPage() {
                         <div className="hidden md:flex items-center gap-3">
                             {isAuthenticated ? (
                                 <Link to="/dashboard">
-                                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Dashboard</Button>
+                                    <Button className="bg-gradient-primary text-white hover:opacity-90 transition-opacity shadow-lg">Dashboard</Button>
                                 </Link>
                             ) : (
                                 <>
                                     <Link to="/login">
-                                        <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+                                        <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
                                             Log In
                                         </Button>
                                     </Link>
                                     <Link to="/signup">
-                                        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Start Free</Button>
+                                        <Button className="bg-gradient-primary text-white hover:opacity-90 transition-opacity shadow-lg hover:shadow-xl">Start Free</Button>
                                     </Link>
                                 </>
                             )}
@@ -254,73 +262,113 @@ export default function LandingPage() {
             </header>
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+            <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
                 <div className="max-w-7xl mx-auto">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        <div className="space-y-8">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20">
-                                <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                                <span className="text-sm text-primary font-medium">Now with Real-Time Market Data</span>
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div className="space-y-8 animate-slide-up-fade">
+                            <div className="inline-flex items-center gap-2.5 px-4 py-2 glass rounded-full border border-primary/30 backdrop-blur-md">
+                                <div className="relative flex">
+                                    <span className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse-glow" />
+                                    <span className="absolute w-2.5 h-2.5 bg-primary rounded-full animate-ping opacity-75" />
+                                </div>
+                                <span className="text-sm text-primary font-semibold">Now with Real-Time Market Data</span>
                             </div>
 
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight text-balance">
-                                Master Trading <span className="text-primary">Without The Risk</span>
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+                                <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+                                    Master Trading
+                                </span>
+                                <br />
+                                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
+                                    Without The Risk
+                                </span>
                             </h1>
 
-                            <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-                                Practice trading with real market data and zero financial risk. Build your skills, test strategies, and
-                                gain confidence before trading with real money.
+                            <p className="text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed">
+                                Practice trading with real market data and zero financial risk. Build your skills, test strategies, and gain confidence before trading with real money.
                             </p>
 
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-8">
-                                    Start Trading Free
-                                    <ArrowRight className="w-4 h-4 ml-2" />
+                            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                                <Link to="/signup">
+                                    <Button size="lg" className="bg-gradient-primary text-white hover:opacity-90 transition-all duration-300 px-8 py-6 text-base shadow-2xl hover:shadow-primary/25 hover:scale-105 group">
+                                        Start Trading Free
+                                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </Link>
+                                <Button size="lg" variant="outline" className="border-2 border-border hover:bg-muted/50 px-8 py-6 text-base backdrop-blur-sm">
+                                    View Demo
                                 </Button>
                             </div>
 
-                            <div className="flex items-center gap-4 pt-4">
+                            <div className="flex flex-wrap items-center gap-6 pt-6">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="relative flex items-center justify-center">
+                                        <div className="w-3 h-3 bg-primary rounded-full" />
+                                        <span className="absolute w-3 h-3 bg-primary rounded-full animate-ping" />
+                                    </div>
+                                    <span className="text-sm font-semibold text-primary">Live Market Data</span>
+                                </div>
+                                <div className="h-4 w-px bg-border" />
                                 <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-primary rounded-full animate-pulse-live" />
-                                    <span className="text-sm font-medium text-primary">Live Market Data</span>
+                                    <Shield className="w-4 h-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">Zero Financial Risk</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="relative lg:pl-8">
-                            <div className="absolute -inset-4 bg-primary/5 rounded-3xl blur-3xl" />
-                            <div className="relative bg-card rounded-2xl border border-border p-6 h-96">
-                                {/* Animated Candlestick Chart */}
-                                <div className="h-full flex flex-col">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold text-foreground">BTC/USD</span>
-                                            <span className="text-xs px-2 py-0.5 bg-primary/20 text-primary rounded">+2.45%</span>
+                        <div className="relative animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                            {/* Floating glow effect */}
+                            <div className="absolute -inset-6 bg-gradient-accent/10 rounded-3xl blur-3xl animate-pulse-glow" />
+
+                            {/* Main chart card */}
+                            <div className="relative glass-card rounded-3xl border border-border/50 p-8 shadow-2xl group hover:shadow-primary/10 transition-all duration-500">
+                                {/* Decorative gradient border */}
+                                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                                <div className="relative h-96 flex flex-col">
+                                    {/* Chart Header */}
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
+                                                <TrendingUp className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-foreground">BTC/USD</h3>
+                                                <p className="text-xs text-muted-foreground">Bitcoin</p>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                                            <span className="text-xs text-muted-foreground">Live</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1.5 bg-primary/15 text-primary rounded-lg text-sm font-bold border border-primary/30">+2.45%</span>
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-lg">
+                                                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                                <span className="text-xs font-medium text-muted-foreground">Live</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex-1 flex items-end gap-1 px-2">
-                                        {/* Animated candlesticks */}
-                                        {[65, 45, 70, 55, 80, 60, 75, 50, 85, 65, 90, 70, 95, 75, 88].map((h, i) => (
+
+                                    {/* Animated candlestick chart */}
+                                    <div className="flex-1 flex items-end gap-1.5 px-4">
+                                        {[65, 45, 70, 55, 80, 60, 75, 50, 85, 65, 90, 70, 95, 75, 88, 92, 78].map((h, i) => (
                                             <div key={i} className="flex-1 h-full flex flex-col justify-end items-center">
                                                 <div
-                                                    className={`w-full rounded-sm transition-all duration-1000 ${i % 3 === 0 ? 'bg-destructive' : 'bg-primary'}`}
+                                                    className={`w-full rounded-t-md transition-all duration-700 hover:opacity-80 ${i % 3 === 0 ? 'bg-gradient-to-t from-destructive to-destructive/70' : 'bg-gradient-to-t from-primary to-primary/70'
+                                                        }`}
                                                     style={{
                                                         height: `${h}%`,
-                                                        animationDelay: `${i * 0.1}s`
+                                                        animationDelay: `${i * 0.08}s`,
+                                                        boxShadow: i % 3 === 0 ? '0 8px 16px rgba(244, 63, 94, 0.3)' : '0 8px 16px rgba(16, 185, 129, 0.3)'
                                                     }}
                                                 />
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="flex justify-between mt-4 text-xs text-muted-foreground">
-                                        <span>9:00</span>
+
+                                    {/* Time labels */}
+                                    <div className="flex justify-between mt-6 text-xs font-medium text-muted-foreground px-4">
+                                        <span>09:00</span>
                                         <span>12:00</span>
                                         <span>15:00</span>
-                                        <span>18:00</span>
+                                        <span className="text-primary">18:00</span>
                                     </div>
                                 </div>
                             </div>

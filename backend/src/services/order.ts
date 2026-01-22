@@ -16,13 +16,44 @@ export async function createOrder(orderData: Partial<IOrder>): Promise<IOrder> {
   session.startTransaction();
 
   try {
-    const { userId, assetId, side, price, quantity } = orderData;
+    const { userId, assetId, side, price, quantity, orderType } = orderData;
 
     if (!userId || !assetId || !quantity) {
       throw new Error("MISSING_FIELDS");
     }
 
-    const totalPrice = (price || 0) * quantity;
+    let totalPrice = 0;
+
+    // For LIMIT orders, use the specified price
+    if (price !== null && price !== undefined) {
+      totalPrice = price * quantity;
+    } else if (side === "BUY") {
+      // For MARKET BUY orders, estimate from order book or use a high estimate
+      const assetKey = String(assetId);
+      const book = orderBook[assetKey];
+
+      if (book?.asks && book.asks.length > 0) {
+        // Estimate cost based on best asks
+        let remainingQty = quantity;
+        let estimatedCost = 0;
+
+        for (const ask of book.asks) {
+          if (remainingQty <= 0) break;
+          const availableQty = ask.quantity - ask.filledQuantity;
+          const qtyToFill = Math.min(remainingQty, availableQty);
+          estimatedCost += qtyToFill * (ask.price || 0);
+          remainingQty -= qtyToFill;
+        }
+
+        // Add 10% buffer for price movement and ensure we have enough
+        totalPrice = estimatedCost * 1.1;
+      } else {
+        // No liquidity - require a minimum buffer amount
+        // This prevents accepting market orders when there are no sellers
+        throw new Error("NO_LIQUIDITY");
+      }
+    }
+    // For MARKET SELL orders, no upfront cost is needed
 
     if (side === "BUY") {
       const wallet = await WalletModel.findOneAndUpdate(
