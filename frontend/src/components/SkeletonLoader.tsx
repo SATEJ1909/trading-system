@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 
 interface SkeletonLoaderProps {
     variant?: 'card' | 'table-row' | 'chart' | 'list' | 'text';

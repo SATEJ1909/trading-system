@@ -72,19 +72,38 @@ export const setupSocketService = (io: Server) => {
 
       } catch (err) {
         const error = err as Error;
-        console.error("ORDER ERROR:", error.message);
+        console.error("[PLACE_ORDER] Error:", error.message, "| User:", userId);
 
-        // Map specific errors to user-friendly reasons
+        // Map errors to user-friendly messages
         let reason = "ORDER_FAILED";
-        if (error.message === "INSUFFICIENT_FUNDS") {
-          reason = "INSUFFICIENT_FUNDS";
-        } else if (error.message === "INSUFFICIENT_ASSET") {
-          reason = "INSUFFICIENT_ASSET";
-        } else if (error.message === "MISSING_FIELDS") {
-          reason = "INVALID_ORDER";
+        let message = "Failed to place order. Please try again.";
+
+        switch (error.message) {
+          case "INSUFFICIENT_FUNDS":
+            reason = "INSUFFICIENT_FUNDS";
+            message = "Insufficient balance. Please add more funds to your wallet.";
+            break;
+          case "INSUFFICIENT_ASSET":
+            reason = "INSUFFICIENT_ASSET";
+            message = "You don't have enough of this asset to sell.";
+            break;
+          case "NO_LIQUIDITY":
+            reason = "NO_LIQUIDITY";
+            message = "No sellers available for this market order. Try a limit order instead.";
+            break;
+          case "INSUFFICIENT_LIQUIDITY":
+            reason = "INSUFFICIENT_LIQUIDITY";
+            message = "Not enough liquidity to fill your order at current prices.";
+            break;
+          case "MISSING_FIELDS":
+            reason = "INVALID_ORDER";
+            message = "Invalid order details. Please check your input.";
+            break;
+          default:
+            console.error("[PLACE_ORDER] Unexpected error:", error);
         }
 
-        socket.emit("ORDER_REJECTED", { reason });
+        socket.emit("ORDER_REJECTED", { reason, message });
       }
     });
 

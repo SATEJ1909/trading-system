@@ -17,17 +17,10 @@ const io = new Server(httpServer, {
     cors: { origin: "*" }
 });
 
-// CORS - must come before rate limiter
-// Allow multiple ports since Vite uses fallback ports when default is busy
+// CORS - Production ready configuration
+// Allows requests from any origin (required for deployment)
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:5174',
-        'http://localhost:5175',
-        'http://127.0.0.1:5173',
-        'http://127.0.0.1:5174',
-        'http://127.0.0.1:5175'
-    ],
+    origin: true, // Accepts all origins
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -35,6 +28,16 @@ app.use(cors({
 
 // Parse JSON bodies
 app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
 
 // Rate Limiting
 const limiter = rateLimit({
