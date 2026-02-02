@@ -116,16 +116,40 @@ export default function DashboardPage() {
 
                 {/* Stats cards */}
                 <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                    {[
-                        { label: 'Virtual Balance', value: `₹${wallet?.availableBalance?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'}` },
-                        { label: 'Open Orders', value: pendingOrders.length.toString() },
-                        { label: 'Completed Trades', value: completedOrders.length.toString() },
-                    ].map((stat) => (
-                        <div key={stat.label} className="bg-card rounded-2xl border border-border p-5">
-                            <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    {/* Virtual Balance Card */}
+                    <div className="stat-card stat-card-primary rounded-2xl p-5">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                                <Wallet className="w-5 h-5 text-primary" />
+                            </div>
+                            <p className="text-sm text-muted-foreground">Virtual Balance</p>
                         </div>
-                    ))}
+                        <p className="text-2xl font-bold text-gradient-green">
+                            ₹{wallet?.availableBalance?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0.00'}
+                        </p>
+                    </div>
+
+                    {/* Open Orders Card */}
+                    <div className="stat-card stat-card-warning rounded-2xl p-5">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-yellow-500/20 rounded-xl flex items-center justify-center">
+                                <Clock className="w-5 h-5 text-yellow-500" />
+                            </div>
+                            <p className="text-sm text-muted-foreground">Open Orders</p>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{pendingOrders.length}</p>
+                    </div>
+
+                    {/* Completed Trades Card */}
+                    <div className="stat-card stat-card-accent rounded-2xl p-5">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center">
+                                <CheckCircle className="w-5 h-5 text-accent" />
+                            </div>
+                            <p className="text-sm text-muted-foreground">Completed Trades</p>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{completedOrders.length}</p>
+                    </div>
                 </div>
 
                 {/* Quick actions */}
@@ -136,15 +160,15 @@ export default function DashboardPage() {
                             <Link
                                 key={action.label}
                                 to={action.href}
-                                className="group bg-card rounded-2xl border border-border p-5 hover:border-primary/50 transition-all duration-300"
+                                className="group quick-action-card bg-card rounded-2xl border border-border p-5"
                             >
                                 <div className="flex items-start justify-between">
-                                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
                                         <action.icon className="w-5 h-5 text-primary" />
                                     </div>
-                                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
                                 </div>
-                                <h3 className="font-semibold text-foreground mb-1">{action.label}</h3>
+                                <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">{action.label}</h3>
                                 <p className="text-sm text-muted-foreground">{action.description}</p>
                             </Link>
                         ))}

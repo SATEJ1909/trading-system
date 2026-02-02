@@ -79,14 +79,14 @@ export default function OrderForm({ assetId, assetSymbol, className = '', isDisa
     };
 
     return (
-        <div className={`bg-card rounded-2xl border border-border overflow-hidden ${className}`}>
+        <div className={`glass-card rounded-2xl border border-border overflow-hidden ${className}`}>
             {/* Side Toggle */}
             <div className="grid grid-cols-2">
                 <button
                     type="button"
                     onClick={() => setSide('BUY')}
-                    className={`py-3 text-sm font-semibold transition-colors ${side === 'BUY'
-                        ? 'bg-primary text-primary-foreground'
+                    className={`py-4 text-sm font-semibold transition-all duration-300 ${side === 'BUY'
+                        ? 'btn-glow-green text-white'
                         : 'bg-secondary/30 text-muted-foreground hover:bg-secondary/50'
                         }`}
                 >
@@ -96,8 +96,8 @@ export default function OrderForm({ assetId, assetSymbol, className = '', isDisa
                 <button
                     type="button"
                     onClick={() => setSide('SELL')}
-                    className={`py-3 text-sm font-semibold transition-colors ${side === 'SELL'
-                        ? 'bg-destructive text-destructive-foreground'
+                    className={`py-4 text-sm font-semibold transition-all duration-300 ${side === 'SELL'
+                        ? 'btn-glow-red text-white'
                         : 'bg-secondary/30 text-muted-foreground hover:bg-secondary/50'
                         }`}
                 >

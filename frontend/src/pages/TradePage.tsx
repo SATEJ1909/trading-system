@@ -9,7 +9,6 @@ import OrderBook from '../components/trading/OrderBook';
 import OrderForm from '../components/trading/OrderForm';
 import CryptoMarketChart from '@/components/ui/crypto-market-chart';
 import {
-    Wifi,
     WifiOff,
     Loader2,
     Clock,
@@ -227,18 +226,18 @@ export default function TradePage() {
             <Navbar />
 
             {/* Connection Status Bar */}
-            <div className="fixed top-16 left-0 right-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
+            <div className="fixed top-16 left-0 right-0 z-40 glass border-b border-border">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">
                         {isLoadingAsset ? 'Loading...' : `Trading ${asset?.symbol || symbol?.toUpperCase()}`}
                     </span>
-                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs ${isConnected
-                        ? 'bg-primary/10 text-primary'
-                        : 'bg-destructive/10 text-destructive'
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${isConnected
+                        ? 'bg-primary/10 text-primary border border-primary/20'
+                        : 'bg-destructive/10 text-destructive border border-destructive/20'
                         }`}>
                         {isConnected ? (
                             <>
-                                <Wifi className="w-3 h-3" />
+                                <div className="live-dot" />
                                 <span>Live</span>
                             </>
                         ) : (
@@ -361,11 +360,14 @@ export default function TradePage() {
 
                             {/* User Orders */}
                             <div className="mt-8">
-                                <div className="bg-card rounded-2xl border border-border overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-border">
+                                <div className="glass-card rounded-2xl border border-border overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                                         <h3 className="text-lg font-semibold text-foreground">
                                             My Orders
                                         </h3>
+                                        <span className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full">
+                                            {userOrders.length} orders
+                                        </span>
                                     </div>
 
                                     {userOrders.length === 0 ? (
@@ -378,7 +380,7 @@ export default function TradePage() {
                                     ) : (
                                         <div className="divide-y divide-border">
                                             {/* Header */}
-                                            <div className="hidden md:grid grid-cols-6 gap-4 px-4 py-2 bg-secondary/30 text-xs font-medium text-muted-foreground">
+                                            <div className="hidden md:grid grid-cols-6 gap-4 px-4 py-2.5 bg-secondary/30 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                                 <span>Side</span>
                                                 <span>Type</span>
                                                 <span>Price</span>
@@ -390,9 +392,10 @@ export default function TradePage() {
                                             {userOrders.map((order) => (
                                                 <div
                                                     key={order.id}
-                                                    className="grid grid-cols-2 md:grid-cols-6 gap-4 px-4 py-3 hover:bg-secondary/20 transition-colors"
+                                                    className="order-row grid grid-cols-2 md:grid-cols-6 gap-4 px-4 py-3"
                                                 >
                                                     <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full ${order.side === 'BUY' ? 'bg-primary' : 'bg-destructive'}`} />
                                                         <span className={`font-medium ${order.side === 'BUY'
                                                             ? 'text-primary'
                                                             : 'text-destructive'
@@ -403,7 +406,7 @@ export default function TradePage() {
                                                     <span className="text-muted-foreground text-sm">
                                                         {order.orderType || 'LIMIT'}
                                                     </span>
-                                                    <span className="text-foreground">
+                                                    <span className="text-foreground font-medium">
                                                         {formatPrice(order.price)}
                                                     </span>
                                                     <span className="text-foreground">
@@ -413,8 +416,12 @@ export default function TradePage() {
                                                         {(order.filledQuantity ?? 0).toFixed(4)}
                                                     </span>
                                                     <div className="flex items-center gap-2">
-                                                        {getStatusIcon(order.status || 'OPEN')}
-                                                        <span className="text-sm capitalize">
+                                                        <span className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${order.status === 'FILLED' ? 'bg-primary/10 text-primary status-badge-filled' :
+                                                                order.status === 'PARTIAL' ? 'bg-yellow-500/10 text-yellow-500 status-badge-pending' :
+                                                                    order.status === 'CANCELLED' ? 'bg-destructive/10 text-destructive' :
+                                                                        'bg-muted text-muted-foreground'
+                                                            }`}>
+                                                            {getStatusIcon(order.status || 'OPEN')}
                                                             {(order.status || 'OPEN').toLowerCase()}
                                                         </span>
                                                     </div>

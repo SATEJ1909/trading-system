@@ -39,7 +39,7 @@ export default function OrderBook({ className = '' }: OrderBookProps) {
 
     if (isLoading) {
         return (
-            <div className={`bg-card rounded-2xl border border-border p-6 ${className}`}>
+            <div className={`glass-card rounded-2xl border border-border p-6 ${className}`}>
                 <h3 className="text-lg font-semibold text-foreground mb-4">Order Book</h3>
                 <div className="flex items-center justify-center py-16">
                     <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -49,10 +49,14 @@ export default function OrderBook({ className = '' }: OrderBookProps) {
     }
 
     return (
-        <div className={`bg-card rounded-2xl border border-border overflow-hidden ${className}`}>
+        <div className={`glass-card rounded-2xl border border-border overflow-hidden ${className}`}>
             {/* Header */}
-            <div className="px-4 py-3 border-b border-border">
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-foreground">Order Book</h3>
+                <div className="flex items-center gap-2">
+                    <div className="live-dot" />
+                    <span className="text-xs text-primary font-medium">LIVE</span>
+                </div>
             </div>
 
             {/* Column Headers */}

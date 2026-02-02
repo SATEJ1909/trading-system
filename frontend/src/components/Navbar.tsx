@@ -41,16 +41,16 @@ export default function Navbar({ showBackButton, backTo, backLabel }: NavbarProp
                         {showBackButton && backTo && (
                             <Link
                                 to={backTo}
-                                className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1"
+                                className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1 transition-colors"
                             >
                                 ← {backLabel || 'Back'}
                             </Link>
                         )}
-                        <Link to="/dashboard" className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                                <TrendingUp className="w-5 h-5 text-primary-foreground" />
+                        <Link to="/dashboard" className="flex items-center gap-2 group">
+                            <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-105 transition-transform">
+                                <TrendingUp className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-xl font-bold text-foreground">TradeX</span>
+                            <span className="text-xl font-bold text-gradient">TradeX</span>
                         </Link>
                     </div>
 
@@ -60,12 +60,12 @@ export default function Navbar({ showBackButton, backTo, backLabel }: NavbarProp
                             <Link
                                 key={link.href}
                                 to={link.href}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive(link.href)
-                                    ? 'bg-primary/10 text-primary'
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.href)
+                                    ? 'bg-primary/10 text-primary nav-link-active'
                                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                                     }`}
                             >
-                                <link.icon className="w-4 h-4" />
+                                <link.icon className={`w-4 h-4 ${isActive(link.href) ? 'text-primary' : ''}`} />
                                 {link.label}
                             </Link>
                         ))}

@@ -12,3 +12,4 @@ WalletRouter.get("/portfolio", authService, getPortfolio);
 WalletRouter.get("/orders", authService, getOrders);
 
 export default WalletRouter;
+

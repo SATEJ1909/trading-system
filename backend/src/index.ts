@@ -50,7 +50,7 @@ app.use(limiter);
 
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/wallet", WalletRouter);
-app.use("/api/v1/assets", assetRouter)
+app.use("/api/v1/assets", assetRouter);
 
 const PORT = process.env.PORT || 4000;
 

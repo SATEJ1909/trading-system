@@ -402,3 +402,240 @@
 .animate-bounce-subtle {
   animation: bounce-subtle 2s ease-in-out infinite;
 }
+
+/* ========================================
+   PROFESSIONAL UI ENHANCEMENT CLASSES
+   ======================================== */
+
+/* Stat Card Gradients */
+.stat-card {
+  background: linear-gradient(135deg, 
+    rgba(20, 24, 35, 0.9) 0%, 
+    rgba(30, 36, 51, 0.7) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #10B981, #6366F1, #EC4899);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-card-primary::before {
+  background: linear-gradient(90deg, #10B981, #059669);
+  opacity: 1;
+}
+
+.stat-card-accent::before {
+  background: linear-gradient(90deg, #6366F1, #8B5CF6);
+  opacity: 1;
+}
+
+.stat-card-warning::before {
+  background: linear-gradient(90deg, #F59E0B, #D97706);
+  opacity: 1;
+}
+
+/* Button Glow Effects */
+.btn-glow-green {
+  position: relative;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-glow-green:hover {
+  box-shadow: 
+    0 6px 20px rgba(16, 185, 129, 0.5),
+    0 0 40px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-glow-red {
+  position: relative;
+  background: linear-gradient(135deg, #F43F5E 0%, #DC2626 100%);
+  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-glow-red:hover {
+  box-shadow: 
+    0 6px 20px rgba(244, 63, 94, 0.5),
+    0 0 40px rgba(244, 63, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Live Indicator Dot */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  position: relative;
+}
+
+.live-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: #10B981;
+  border-radius: 50%;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Price Flash Animation */
+@keyframes price-flash-green {
+  0% { background-color: rgba(16, 185, 129, 0.3); }
+  100% { background-color: transparent; }
+}
+
+@keyframes price-flash-red {
+  0% { background-color: rgba(244, 63, 94, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.price-flash-up {
+  animation: price-flash-green 0.5s ease-out;
+}
+
+.price-flash-down {
+  animation: price-flash-red 0.5s ease-out;
+}
+
+/* Enhanced Input Focus */
+.input-glow:focus {
+  box-shadow: 
+    0 0 0 2px rgba(16, 185, 129, 0.2),
+    0 0 20px rgba(16, 185, 129, 0.1);
+  border-color: #10B981;
+}
+
+/* Card Hover Lift */
+.card-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(16, 185, 129, 0.1);
+}
+
+/* Gradient Text */
+.text-gradient {
+  background: linear-gradient(135deg, #10B981 0%, #6366F1 50%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-green {
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Order Row Animations */
+.order-row {
+  transition: all 0.2s ease;
+}
+
+.order-row:hover {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+/* Status Badge Glow */
+.status-badge-filled {
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.status-badge-pending {
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+/* Nav Link Active Indicator */
+.nav-link-active {
+  position: relative;
+}
+
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, #10B981, #059669);
+  border-radius: 1px;
+}
+
+/* Quick Action Card */
+.quick-action-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.quick-action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(16, 185, 129, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.quick-action-card:hover::before {
+  left: 100%;
+}
+
+.quick-action-card:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
