@@ -44,19 +44,22 @@ export default function LandingPage() {
 
     const fetchMarketData = async () => {
         try {
-            const response = await fetch(
-                "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano&vs_currencies=usd&include_24hr_change=true",
-            )
-            const data = await response.json()
-            // Use mock data as fallback
-            setMarketData([
-                { symbol: "BTC", price: 98500, change: 2.45 },
-                { symbol: "ETH", price: 3450, change: 1.82 },
-                { symbol: "SOL", price: 185, change: -0.75 },
-                { symbol: "ADA", price: 0.92, change: 3.21 },
-            ])
+            // Use backend API proxy instead of direct CoinGecko call
+            const apiBase = import.meta.env.VITE_API_URL || 'https://trading-system1.onrender.com/api/v1';
+            const response = await fetch(`${apiBase}/market/prices?ids=bitcoin,ethereum,solana,cardano`);
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                const data = result.data;
+                setMarketData([
+                    { symbol: "BTC", price: data.bitcoin?.usd || 98500, change: data.bitcoin?.usd_24h_change || 2.45 },
+                    { symbol: "ETH", price: data.ethereum?.usd || 3450, change: data.ethereum?.usd_24h_change || 1.82 },
+                    { symbol: "SOL", price: data.solana?.usd || 185, change: data.solana?.usd_24h_change || -0.75 },
+                    { symbol: "ADA", price: data.cardano?.usd || 0.92, change: data.cardano?.usd_24h_change || 3.21 },
+                ]);
+            }
         } catch (error) {
-            console.log("[v0] Using mock market data")
+            console.log("[TradeX] Using fallback market data");
         }
     }
 

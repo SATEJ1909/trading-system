@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import UserRouter from './routes/user.js';
 import WalletRouter from './routes/wallet.js';
 import assetRouter from './routes/asset.js';
+import marketRouter from './routes/market.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setupSocketService } from './socketserver/socket.js';
@@ -51,6 +52,7 @@ app.use(limiter);
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/wallet", WalletRouter);
 app.use("/api/v1/assets", assetRouter);
+app.use("/api/v1/market", marketRouter);
 
 const PORT = process.env.PORT || 4000;
 

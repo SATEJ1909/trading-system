@@ -73,16 +73,18 @@ export default function CryptoMarketChart({
         setError(null)
 
         try {
-            // Fetch OHLC data
+            // Fetch OHLC data via backend proxy
+            const apiBase = import.meta.env.VITE_API_URL || 'https://trading-system1.onrender.com/api/v1';
             const ohlcResponse = await fetch(
-                `https://api.coingecko.com/api/v3/coins/${coinId}/ohlc?vs_currency=inr&days=${timeframe}`
+                `${apiBase}/market/ohlc/${coinId}?days=${timeframe}`
             )
 
             if (!ohlcResponse.ok) {
                 throw new Error("Failed to fetch OHLC data")
             }
 
-            const ohlcData: CoinGeckoOHLC[] = await ohlcResponse.json()
+            const ohlcResult = await ohlcResponse.json()
+            const ohlcData: CoinGeckoOHLC[] = ohlcResult.data
 
             // Transform to our format
             const transformedData: CryptoDataPoint[] = ohlcData.map((d) => ({
@@ -105,13 +107,14 @@ export default function CryptoMarketChart({
                 setPriceChangePercent(((latestPoint.close - firstPoint.open) / firstPoint.open) * 100)
             }
 
-            // Fetch current market data
+            // Fetch current market data via backend proxy
             const marketResponse = await fetch(
-                `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`
+                `${apiBase}/market/coin/${coinId}`
             )
 
             if (marketResponse.ok) {
-                const marketInfo = await marketResponse.json()
+                const marketResult = await marketResponse.json()
+                const marketInfo = marketResult.data
                 setMarketData({
                     volume24h: marketInfo.market_data?.total_volume?.inr || 0,
                     marketCap: marketInfo.market_data?.market_cap?.inr || 0,
@@ -482,8 +485,8 @@ export default function CryptoMarketChart({
                                     {formatPrice(currentPrice)}
                                 </span>
                                 <span className={`px-2 py-0.5 rounded text-sm font-medium ${priceChangePercent >= 0
-                                        ? "bg-primary/20 text-primary"
-                                        : "bg-destructive/20 text-destructive"
+                                    ? "bg-primary/20 text-primary"
+                                    : "bg-destructive/20 text-destructive"
                                     }`}>
                                     {priceChangePercent >= 0 ? "↑" : "↓"} {Math.abs(priceChangePercent).toFixed(2)}%
                                 </span>
@@ -506,8 +509,8 @@ export default function CryptoMarketChart({
                                     key={tf}
                                     onClick={() => setTimeframe(tf)}
                                     className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${timeframe === tf
-                                            ? "bg-primary text-primary-foreground"
-                                            : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                                         }`}
                                 >
                                     {timeframeLabels[tf]}
@@ -524,8 +527,8 @@ export default function CryptoMarketChart({
                             key={type}
                             onClick={() => setChartType(type)}
                             className={`flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${chartType === type
-                                    ? "bg-secondary text-foreground border-b-2 border-primary"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                                ? "bg-secondary text-foreground border-b-2 border-primary"
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                                 }`}
                         >
                             <Clock className="w-4 h-4 mr-1.5" />

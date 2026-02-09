@@ -104,8 +104,9 @@ export default function MarketsPage() {
             setError(null);
             setIsCached(false);
 
+            // Use backend API proxy instead of direct CoinGecko call
             const response = await fetch(
-                'https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr&order=market_cap_desc&per_page=25&page=1&sparkline=false&price_change_percentage=24h'
+                `${import.meta.env.VITE_API_URL || 'https://trading-system1.onrender.com/api/v1'}/market`
             );
 
             // Handle rate limit error specifically - fall back to cache
@@ -126,12 +127,18 @@ export default function MarketsPage() {
                 throw new Error('Failed to fetch market data');
             }
 
-            const data: CryptoAsset[] = await response.json();
+            const result = await response.json();
+            const data: CryptoAsset[] = result.data;
             setAssets(data);
             setLastUpdated(new Date());
             lastFetchTime.current = Date.now();
 
-            // Save to cache
+            // Check if result was from cache
+            if (result.cached) {
+                setIsCached(true);
+            }
+
+            // Save to local cache
             setCache(data);
 
             // Start cooldown countdown for manual refresh button
