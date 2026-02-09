@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 // CoinGecko API base URL
 const COINGECKO_BASE = "https://api.coingecko.com/api/v3";
 
-// Cache for rate limit protection
+// Cache for rate limit protection - store data and stale data separately
 const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 60000; // 1 minute cache
+const staleCache = new Map<string, any>(); // Keep last known good data indefinitely
+const CACHE_DURATION = 300000; // 5 minutes cache (was 1 minute)
 
 const getCached = (key: string) => {
     const cached = cache.get(key);
@@ -15,8 +16,13 @@ const getCached = (key: string) => {
     return null;
 };
 
+const getStaleCache = (key: string) => {
+    return staleCache.get(key) || null;
+};
+
 const setCache = (key: string, data: any) => {
     cache.set(key, { data, timestamp: Date.now() });
+    staleCache.set(key, data); // Also store as stale backup
 };
 
 // Get top 25 cryptocurrencies (for Markets page)
@@ -35,6 +41,12 @@ export const getMarkets = async (req: Request, res: Response): Promise<void> => 
         );
 
         if (response.status === 429) {
+            // Return stale cache if available instead of error
+            const stale = getStaleCache(cacheKey);
+            if (stale) {
+                res.json({ success: true, data: stale, cached: true, stale: true });
+                return;
+            }
             res.status(429).json({
                 success: false,
                 message: "Rate limited by CoinGecko. Please try again later.",
@@ -51,6 +63,12 @@ export const getMarkets = async (req: Request, res: Response): Promise<void> => 
 
         res.json({ success: true, data });
     } catch (error: any) {
+        // Return stale cache on any error
+        const stale = getStaleCache(cacheKey);
+        if (stale) {
+            res.json({ success: true, data: stale, cached: true, stale: true });
+            return;
+        }
         console.error("Market fetch error:", error);
         res.status(500).json({
             success: false,
@@ -58,6 +76,7 @@ export const getMarkets = async (req: Request, res: Response): Promise<void> => 
         });
     }
 };
+
 
 // Get OHLC data for a specific coin (for chart)
 export const getOHLC = async (req: Request, res: Response): Promise<void> => {
@@ -269,6 +288,12 @@ export const getMarketsByCoinIds = async (req: Request, res: Response): Promise<
 
         res.json({ success: true, data });
     } catch (error: any) {
+        // Return stale cache on any error
+        const stale = getStaleCache(cacheKey);
+        if (stale) {
+            res.json({ success: true, data: stale, cached: true, stale: true });
+            return;
+        }
         console.error("Markets by IDs fetch error:", error);
         res.status(500).json({
             success: false,
@@ -276,3 +301,4 @@ export const getMarketsByCoinIds = async (req: Request, res: Response): Promise<
         });
     }
 };
+
