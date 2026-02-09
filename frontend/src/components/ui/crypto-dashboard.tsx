@@ -609,6 +609,29 @@ const CryptoDashboard: React.FC = () => {
     const [isSearchOpen, setIsSearchOpen] = useState(false)
 
     const fetchCryptoData = useCallback(async () => {
+        const CACHE_KEY = 'tradex_dashboard_cache';
+
+        // Try to get cached data first
+        const getCached = () => {
+            try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const { data, timestamp } = JSON.parse(cached);
+                    // Cache valid for 5 minutes
+                    if (Date.now() - timestamp < 300000) {
+                        return data;
+                    }
+                }
+            } catch { }
+            return null;
+        };
+
+        const setCache = (data: CryptoData[]) => {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+            } catch { }
+        };
+
         try {
             setError(null)
             const coinIds = selectedCoins.join(",")
@@ -619,19 +642,26 @@ const CryptoDashboard: React.FC = () => {
                 const result = await response.json()
                 if (result.success && result.data) {
                     setCryptoData(result.data)
-                } else {
-                    throw new Error("Failed to fetch data")
+                    setCache(result.data)
+                    return
                 }
-            } else {
-                throw new Error("API request failed")
             }
+            throw new Error("API request failed")
         } catch {
-            setCryptoData(mockCryptoData)
-            setError("Using demo data - API unavailable")
+            // Try cache first, then mock data
+            const cached = getCached();
+            if (cached && cached.length > 0) {
+                setCryptoData(cached)
+                setError("Using cached data - API unavailable")
+            } else {
+                setCryptoData(mockCryptoData)
+                setError("Using demo data - API unavailable")
+            }
         } finally {
             setLoading(false)
         }
     }, [selectedCoins])
+
 
     useEffect(() => {
         fetchCryptoData()
