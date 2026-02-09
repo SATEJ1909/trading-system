@@ -97,6 +97,12 @@ export const getOHLC = async (req: Request, res: Response): Promise<void> => {
         );
 
         if (response.status === 429) {
+            // Return stale cache if available
+            const stale = getStaleCache(cacheKey);
+            if (stale) {
+                res.json({ success: true, data: stale, cached: true, stale: true });
+                return;
+            }
             res.status(429).json({
                 success: false,
                 message: "Rate limited. Please try again later.",
@@ -113,6 +119,12 @@ export const getOHLC = async (req: Request, res: Response): Promise<void> => {
 
         res.json({ success: true, data });
     } catch (error: any) {
+        // Return stale cache on any error
+        const stale = getStaleCache(cacheKey);
+        if (stale) {
+            res.json({ success: true, data: stale, cached: true, stale: true });
+            return;
+        }
         console.error("OHLC fetch error:", error);
         res.status(500).json({
             success: false,
@@ -139,6 +151,12 @@ export const getCoinDetails = async (req: Request, res: Response): Promise<void>
         );
 
         if (response.status === 429) {
+            // Return stale cache if available
+            const stale = getStaleCache(cacheKey);
+            if (stale) {
+                res.json({ success: true, data: stale, cached: true, stale: true });
+                return;
+            }
             res.status(429).json({
                 success: false,
                 message: "Rate limited. Please try again later.",
@@ -155,6 +173,12 @@ export const getCoinDetails = async (req: Request, res: Response): Promise<void>
 
         res.json({ success: true, data });
     } catch (error: any) {
+        // Return stale cache on any error
+        const stale = getStaleCache(cacheKey);
+        if (stale) {
+            res.json({ success: true, data: stale, cached: true, stale: true });
+            return;
+        }
         console.error("Coin details fetch error:", error);
         res.status(500).json({
             success: false,
@@ -181,6 +205,12 @@ export const getSimplePrices = async (req: Request, res: Response): Promise<void
         );
 
         if (response.status === 429) {
+            // Return stale cache if available
+            const stale = getStaleCache(cacheKey);
+            if (stale) {
+                res.json({ success: true, data: stale, cached: true, stale: true });
+                return;
+            }
             res.status(429).json({
                 success: false,
                 message: "Rate limited. Please try again later.",
@@ -197,6 +227,12 @@ export const getSimplePrices = async (req: Request, res: Response): Promise<void
 
         res.json({ success: true, data });
     } catch (error: any) {
+        // Return stale cache on any error
+        const stale = getStaleCache(cacheKey);
+        if (stale) {
+            res.json({ success: true, data: stale, cached: true, stale: true });
+            return;
+        }
         console.error("Simple prices fetch error:", error);
         res.status(500).json({
             success: false,
@@ -268,7 +304,7 @@ export const getMarketsByCoinIds = async (req: Request, res: Response): Promise<
 
     try {
         const response = await fetch(
-            `${COINGECKO_BASE}/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=24h`
+            `${COINGECKO_BASE}/coins/markets?vs_currency=inr&ids=${ids}&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=24h`
         );
 
         if (response.status === 429) {
@@ -301,4 +337,3 @@ export const getMarketsByCoinIds = async (req: Request, res: Response): Promise<
         });
     }
 };
-
