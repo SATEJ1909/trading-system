@@ -362,19 +362,24 @@ const SearchModal: React.FC<{
 
         setIsLoading(true)
         try {
-            const response = await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`)
+            const apiBase = import.meta.env.VITE_API_URL || 'https://trading-system1.onrender.com/api/v1';
+            const response = await fetch(`${apiBase}/market/search?query=${encodeURIComponent(query)}`)
             if (response.ok) {
-                const data = await response.json()
-                const coinIds = data.coins
-                    .slice(0, 5)
-                    .map((coin: { id: string }) => coin.id)
-                    .join(",")
-                const detailsResponse = await fetch(
-                    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds}&order=market_cap_desc&per_page=5&page=1&sparkline=true&price_change_percentage=24h`,
-                )
-                if (detailsResponse.ok) {
-                    const detailsData = await detailsResponse.json()
-                    setSearchResults(detailsData)
+                const result = await response.json()
+                if (result.success && result.data?.coins) {
+                    const coinIds = result.data.coins
+                        .slice(0, 5)
+                        .map((coin: { id: string }) => coin.id)
+                        .join(",")
+                    const detailsResponse = await fetch(
+                        `${apiBase}/market/coins?ids=${coinIds}`,
+                    )
+                    if (detailsResponse.ok) {
+                        const detailsResult = await detailsResponse.json()
+                        if (detailsResult.success) {
+                            setSearchResults(detailsResult.data)
+                        }
+                    }
                 }
             }
         } catch (error) {
@@ -607,23 +612,19 @@ const CryptoDashboard: React.FC = () => {
         try {
             setError(null)
             const coinIds = selectedCoins.join(",")
-            const urls = [
-                `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds}&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=24h`,
-            ]
-            let data = null
-            for (const url of urls) {
-                try {
-                    const response = await fetch(url)
-                    if (response.ok) {
-                        data = await response.json()
-                        break
-                    }
-                } catch {
-                    continue
+            const apiBase = import.meta.env.VITE_API_URL || 'https://trading-system1.onrender.com/api/v1';
+
+            const response = await fetch(`${apiBase}/market/coins?ids=${coinIds}`)
+            if (response.ok) {
+                const result = await response.json()
+                if (result.success && result.data) {
+                    setCryptoData(result.data)
+                } else {
+                    throw new Error("Failed to fetch data")
                 }
+            } else {
+                throw new Error("API request failed")
             }
-            if (data) setCryptoData(data)
-            else throw new Error("All API endpoints failed")
         } catch {
             setCryptoData(mockCryptoData)
             setError("Using demo data - API unavailable")
